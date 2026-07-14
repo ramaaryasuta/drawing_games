@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'components/brush_color_selector.dart';
-import 'components/brush_mode_selector.dart';
+import 'components/tool_mode_selector.dart';
 import 'components/brush_size_selector.dart';
 
 class DrawingTool extends StatelessWidget {
@@ -21,7 +21,7 @@ class DrawingTool extends StatelessWidget {
         spacing: 10,
         crossAxisAlignment: .start,
         children: [
-          BrushModeSelector(),
+          ToolModeSelector(),
           BrushColorSelector(),
           BrushSizeSelector(),
         ],

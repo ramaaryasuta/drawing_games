@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/drawing_controller.dart';
+import '../../utils/utils.dart';
 
 class BrushSizeSelector extends StatefulWidget {
   const BrushSizeSelector({super.key});
@@ -37,7 +38,7 @@ class _BrushSizeSelectorState extends State<BrushSizeSelector> {
     double? newValue = double.tryParse(value);
     if (newValue != null) {
       if (newValue < 1) newValue = 1;
-      if (newValue > 10) newValue = 10;
+      if (newValue > 40) newValue = 40;
 
       _drawingController.setBrush(width: newValue);
     }
@@ -50,7 +51,9 @@ class _BrushSizeSelectorState extends State<BrushSizeSelector> {
         return Column(
           crossAxisAlignment: .start,
           children: [
-            Text('${drawingCtrl.currentBrush.mode.toString()} Size'),
+            Text(
+              '${uppercaseFirstLetter(drawingCtrl.currentBrush.mode.name.toString())} Size',
+            ),
             Row(
               spacing: 20,
               children: [
@@ -59,11 +62,15 @@ class _BrushSizeSelectorState extends State<BrushSizeSelector> {
                     data: SliderTheme.of(context).copyWith(
                       padding: const EdgeInsets.all(0),
                       trackShape: const RoundedRectSliderTrackShape(),
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 8,
+                        disabledThumbRadius: 6,
+                      ),
                     ),
                     child: Slider(
                       value: drawingCtrl.currentBrush.width,
                       min: 1.0,
-                      max: 20.0,
+                      max: 40.0,
                       divisions: 10,
                       label: drawingCtrl.currentBrush.width.round().toString(),
                       onChanged: (double value) {

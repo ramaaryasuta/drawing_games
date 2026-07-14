@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../models/brush.dart';
 import '../../services/drawing_controller.dart';
 
-class BrushModeSelector extends StatelessWidget {
-  const BrushModeSelector({super.key});
+class ToolModeSelector extends StatelessWidget {
+  const ToolModeSelector({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +39,22 @@ class BrushModeSelector extends StatelessWidget {
                   tooltip: 'Eraser mode',
                   icon: Icons.format_paint_sharp,
                   isSelected: drawingCtrl.currentBrush.mode == BrushMode.eraser,
+                ),
+                ToolContainer(
+                  onTap: () {
+                    drawingCtrl.undo();
+                  },
+                  tooltip: 'Undo',
+                  icon: Icons.undo_rounded,
+                  isSelected: false,
+                ),
+                ToolContainer(
+                  onTap: () {
+                    drawingCtrl.redo();
+                  },
+                  tooltip: 'Redo',
+                  icon: Icons.redo_rounded,
+                  isSelected: false,
                 ),
               ],
             );
