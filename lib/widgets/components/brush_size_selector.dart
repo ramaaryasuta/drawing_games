@@ -45,16 +45,16 @@ class _BrushSizeSelectorState extends State<BrushSizeSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: .start,
-      children: [
-        Text('Brush Size'),
-        Row(
-          spacing: 20,
+    return Consumer<DrawingController>(
+      builder: (context, drawingCtrl, _) {
+        return Column(
+          crossAxisAlignment: .start,
           children: [
-            Consumer<DrawingController>(
-              builder: (context, drawingCtrl, _) {
-                return Expanded(
+            Text('${drawingCtrl.currentBrush.mode.toString()} Size'),
+            Row(
+              spacing: 20,
+              children: [
+                Expanded(
                   child: SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       padding: const EdgeInsets.all(0),
@@ -74,31 +74,31 @@ class _BrushSizeSelectorState extends State<BrushSizeSelector> {
                       },
                     ),
                   ),
-                );
-              },
-            ),
-
-            SizedBox(
-              width: 40,
-              child: TextField(
-                controller: _textController,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 4,
-                    horizontal: 2,
-                  ),
-                  border: OutlineInputBorder(),
-                  isDense: true,
                 ),
-                onChanged: _updateFromText,
-              ),
+
+                SizedBox(
+                  width: 40,
+                  child: TextField(
+                    controller: _textController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 2,
+                      ),
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    onChanged: _updateFromText,
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
