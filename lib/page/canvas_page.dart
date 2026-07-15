@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../models/brush.dart';
 import '../services/drawing_controller.dart';
 import '../widgets/drawing_canvas.dart';
 import '../widgets/drawing_tool.dart';
@@ -33,19 +34,34 @@ class _CanvasPageState extends State<CanvasPage> {
     return KeyboardListener(
       focusNode: _keyboardFocusNode,
       onKeyEvent: (event) {
-        final drawingController = context.read<DrawingController>();
-        if (event is KeyDownEvent) {
-          final isCtrlPressed = HardwareKeyboard.instance.isControlPressed;
-          final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+        if (event is! KeyDownEvent) return;
 
-          if (isCtrlPressed &&
-              isShiftPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyZ) {
-            drawingController.redo();
-          } else if (isCtrlPressed &&
-              event.logicalKey == LogicalKeyboardKey.keyZ) {
-            drawingController.undo();
-          }
+        final drawingCtrl = context.read<DrawingController>();
+        final isCtrlPressed = HardwareKeyboard.instance.isControlPressed;
+        final isShiftPressed = HardwareKeyboard.instance.isShiftPressed;
+
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.keyP:
+            drawingCtrl.setBrush(mode: BrushMode.pen);
+            return;
+          case LogicalKeyboardKey.keyE:
+            drawingCtrl.setBrush(mode: BrushMode.eraser);
+            return;
+          case LogicalKeyboardKey.keyI:
+            drawingCtrl.setBrush(mode: BrushMode.eyedropper);
+            return;
+        }
+
+        if (isCtrlPressed &&
+            isShiftPressed &&
+            event.logicalKey == LogicalKeyboardKey.keyZ) {
+          drawingCtrl.redo();
+        } else if (isCtrlPressed &&
+            event.logicalKey == LogicalKeyboardKey.keyZ) {
+          drawingCtrl.undo();
+        } else if (isCtrlPressed &&
+            event.logicalKey == LogicalKeyboardKey.backspace) {
+          drawingCtrl.clearCanvas();
         }
       },
       child: const Scaffold(

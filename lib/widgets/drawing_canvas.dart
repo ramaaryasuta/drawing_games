@@ -81,8 +81,7 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
                     showCursor: ctrl.showCursor,
                   ),
                   builder: (context, brushData, _) {
-                    if (brushData.mode == BrushMode.eyedropper ||
-                        !brushData.showCursor) {
+                    if (!brushData.showCursor) {
                       return const SizedBox.shrink();
                     }
 
@@ -91,10 +90,16 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
                       builder: (context, position, _) {
                         if (position == null) return const SizedBox.shrink();
 
+                        final isEyedropper =
+                            brushData.mode == BrushMode.eyedropper;
+
                         return CustomPaint(
                           painter: BrushCursorPainter(
                             position: position,
                             radius: brushData.width / 2,
+                            shape: isEyedropper
+                                ? CursorShape.crosshair
+                                : CursorShape.brush,
                           ),
                           size: const Size(800, 500),
                         );
@@ -111,14 +116,30 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
   }
 }
 
+enum CursorShape { brush, crosshair }
+
 class BrushCursorPainter extends CustomPainter {
   final Offset position;
   final double radius;
+  final CursorShape shape;
 
-  BrushCursorPainter({required this.position, required this.radius});
+  BrushCursorPainter({
+    required this.position,
+    required this.radius,
+    this.shape = CursorShape.brush,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
+    switch (shape) {
+      case CursorShape.brush:
+        _paintBrush(canvas);
+      case CursorShape.crosshair:
+        _paintCrosshair(canvas);
+    }
+  }
+
+  void _paintBrush(Canvas canvas) {
     final outlinePaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
@@ -133,9 +154,61 @@ class BrushCursorPainter extends CustomPainter {
     canvas.drawCircle(position, radius, borderPaint);
   }
 
+  void _paintCrosshair(Canvas canvas) {
+    const armLength = 10.0;
+    const gap = 4.0; // celah di tengah biar titik pusat tidak tertutup garis
+
+    final outlinePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+
+    final borderPaint = Paint()
+      ..color = Colors.black87
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..strokeCap = StrokeCap.round;
+
+    final lines = [
+      // horizontal kiri & kanan
+      [
+        Offset(position.dx - armLength, position.dy),
+        Offset(position.dx - gap, position.dy),
+      ],
+      [
+        Offset(position.dx + gap, position.dy),
+        Offset(position.dx + armLength, position.dy),
+      ],
+      // vertikal atas & bawah
+      [
+        Offset(position.dx, position.dy - armLength),
+        Offset(position.dx, position.dy - gap),
+      ],
+      [
+        Offset(position.dx, position.dy + gap),
+        Offset(position.dx, position.dy + armLength),
+      ],
+    ];
+
+    // gambar outline putih dulu (lebih tebal), baru garis hitam di atasnya (lebih tipis)
+    // supaya crosshair tetap kelihatan kontras di background apa pun
+    for (final line in lines) {
+      canvas.drawLine(line[0], line[1], outlinePaint);
+    }
+    for (final line in lines) {
+      canvas.drawLine(line[0], line[1], borderPaint);
+    }
+
+    // titik kecil di pusat sebagai penanda titik presisi
+    canvas.drawCircle(position, 1.5, Paint()..color = Colors.black87);
+  }
+
   @override
   bool shouldRepaint(covariant BrushCursorPainter oldDelegate) {
-    return oldDelegate.position != position || oldDelegate.radius != radius;
+    return oldDelegate.position != position ||
+        oldDelegate.radius != radius ||
+        oldDelegate.shape != shape;
   }
 }
 

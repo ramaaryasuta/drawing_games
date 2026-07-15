@@ -28,7 +28,7 @@ class ToolModeSelector extends StatelessWidget {
                   onTap: () {
                     drawingCtrl.setBrush(mode: BrushMode.pen);
                   },
-                  tooltip: 'Brush mode',
+                  tooltip: 'Brush mode (P)',
                   icon: Icons.brush,
                   isSelected: drawingCtrl.currentBrush.mode == BrushMode.pen,
                 ),
@@ -36,7 +36,7 @@ class ToolModeSelector extends StatelessWidget {
                   onTap: () {
                     drawingCtrl.setBrush(mode: BrushMode.eraser);
                   },
-                  tooltip: 'Eraser mode',
+                  tooltip: 'Eraser mode (E)',
                   icon: Icons.format_paint_sharp,
                   isSelected: drawingCtrl.currentBrush.mode == BrushMode.eraser,
                 ),
@@ -44,7 +44,7 @@ class ToolModeSelector extends StatelessWidget {
                   onTap: () {
                     drawingCtrl.clearCanvas();
                   },
-                  tooltip: 'Clear Canvas',
+                  tooltip: 'Clear Canvas (Ctrl + Backspace)',
                   icon: Icons.layers_clear_outlined,
                   isSelected: false,
                 ),
@@ -52,7 +52,7 @@ class ToolModeSelector extends StatelessWidget {
                   onTap: () {
                     drawingCtrl.setBrush(mode: BrushMode.eyedropper);
                   },
-                  tooltip: 'Pick Color',
+                  tooltip: 'Pick Color (I)',
                   icon: Icons.colorize_rounded,
                   isSelected:
                       drawingCtrl.currentBrush.mode == BrushMode.eyedropper,
@@ -61,7 +61,7 @@ class ToolModeSelector extends StatelessWidget {
                   onTap: () {
                     drawingCtrl.undo();
                   },
-                  tooltip: 'Undo',
+                  tooltip: 'Undo (Ctrl + Z)',
                   icon: Icons.undo_rounded,
                   isSelected: false,
                 ),
@@ -69,7 +69,7 @@ class ToolModeSelector extends StatelessWidget {
                   onTap: () {
                     drawingCtrl.redo();
                   },
-                  tooltip: 'Redo',
+                  tooltip: 'Redo (Ctrl + Shift + Z)',
                   icon: Icons.redo_rounded,
                   isSelected: false,
                 ),

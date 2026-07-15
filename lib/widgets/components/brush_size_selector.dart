@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/brush.dart';
 import '../../services/drawing_controller.dart';
 import '../../utils/utils.dart';
 
@@ -52,60 +53,65 @@ class _BrushSizeSelectorState extends State<BrushSizeSelector> {
           spacing: 8,
           crossAxisAlignment: .start,
           children: [
-            Text(
-              '${uppercaseFirstLetter(drawingCtrl.currentBrush.mode.name.toString())} Size',
-            ),
-            Row(
-              spacing: 20,
-              children: [
-                Expanded(
-                  child: SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      padding: const EdgeInsets.all(0),
-                      trackShape: const RoundedRectSliderTrackShape(),
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 8,
-                        disabledThumbRadius: 6,
+            if (drawingCtrl.currentBrush.mode == BrushMode.pen ||
+                drawingCtrl.currentBrush.mode == BrushMode.eraser) ...[
+              Text(
+                '${uppercaseFirstLetter(drawingCtrl.currentBrush.mode.name.toString())} Size',
+              ),
+              Row(
+                spacing: 20,
+                children: [
+                  Expanded(
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        padding: const EdgeInsets.all(0),
+                        trackShape: const RoundedRectSliderTrackShape(),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 8,
+                          disabledThumbRadius: 6,
+                        ),
+                      ),
+                      child: Slider(
+                        value: drawingCtrl.currentBrush.width,
+                        min: 1.0,
+                        max: 40.0,
+                        divisions: 10,
+                        label: drawingCtrl.currentBrush.width
+                            .round()
+                            .toString(),
+                        onChanged: (double value) {
+                          setState(() {
+                            _drawingController.setBrush(width: value);
+                            _textController.text = value.toInt().toString();
+                          });
+                        },
                       ),
                     ),
-                    child: Slider(
-                      value: drawingCtrl.currentBrush.width,
-                      min: 1.0,
-                      max: 40.0,
-                      divisions: 10,
-                      label: drawingCtrl.currentBrush.width.round().toString(),
-                      onChanged: (double value) {
-                        setState(() {
-                          _drawingController.setBrush(width: value);
-                          _textController.text = value.toInt().toString();
-                        });
-                      },
-                    ),
                   ),
-                ),
 
-                SizedBox(
-                  width: 40,
-                  child: TextField(
-                    controller: _textController,
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 4,
-                        horizontal: 2,
+                  SizedBox(
+                    width: 40,
+                    child: TextField(
+                      controller: _textController,
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 2,
+                        ),
+                        border: OutlineInputBorder(),
+                        isDense: true,
                       ),
-                      border: OutlineInputBorder(),
-                      isDense: true,
+                      onChanged: _updateFromText,
                     ),
-                    onChanged: _updateFromText,
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            const SizedBox(height: 1),
+              const SizedBox(height: 1),
+            ],
 
             Row(
               children: [
