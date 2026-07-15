@@ -12,13 +12,13 @@ class DrawingTool extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       width: 150,
-      height: 600,
+      height: 700,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
       ),
       child: const Column(
-        spacing: 10,
+        spacing: 16,
         crossAxisAlignment: .start,
         children: [
           ToolModeSelector(),

@@ -1,44 +1,141 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/brush.dart';
 import '../models/stroke.dart';
 import '../services/drawing_controller.dart';
 
-class DrawingCanvas extends StatelessWidget {
+class DrawingCanvas extends StatefulWidget {
   const DrawingCanvas({super.key});
 
   @override
+  State<DrawingCanvas> createState() => _DrawingCanvasState();
+}
+
+class _DrawingCanvasState extends State<DrawingCanvas> {
+  final ValueNotifier<Offset?> _cursorPosition = ValueNotifier(null);
+
+  @override
+  void dispose() {
+    _cursorPosition.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer<DrawingController>(
-      builder: (context, drawingCtrl, _) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Listener(
-            onPointerDown: (e) {
-              drawingCtrl.startStroke(e.localPosition);
-            },
-            onPointerMove: (e) {
-              drawingCtrl.appendPoint(e.localPosition);
-            },
-            onPointerUp: (e) {
-              drawingCtrl.finishStroke();
-            },
-            child: ClipRect(
-              child: CustomPaint(
-                painter: MasterPainter(
-                  strokes: drawingCtrl.strokes,
-                  currentStroke: drawingCtrl.currentStroke,
+    // context.read: ambil sekali untuk dipakai di callback, TIDAK subscribe/rebuild
+    final drawingCtrl = context.read<DrawingController>();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: MouseRegion(
+        onExit: (_) => _cursorPosition.value = null,
+        child: Listener(
+          onPointerDown: (e) {
+            final brush = drawingCtrl.currentBrush;
+            if (brush.mode == BrushMode.eyedropper) {
+              final color = drawingCtrl.pickColor(e.localPosition);
+              if (color != null) {
+                drawingCtrl.setBrush(color: color, mode: BrushMode.pen);
+              }
+              return;
+            }
+            drawingCtrl.startStroke(e.localPosition);
+          },
+          onPointerMove: (e) {
+            _cursorPosition.value = e.localPosition;
+            drawingCtrl.appendPoint(e.localPosition);
+          },
+          onPointerHover: (e) => _cursorPosition.value = e.localPosition,
+          onPointerUp: (e) => drawingCtrl.finishStroke(),
+          child: ClipRect(
+            child: Stack(
+              children: [
+                Selector<
+                  DrawingController,
+                  ({List<Stroke> strokes, Stroke? current})
+                >(
+                  selector: (_, ctrl) =>
+                      (strokes: ctrl.strokes, current: ctrl.currentStroke),
+                  builder: (context, data, _) {
+                    return CustomPaint(
+                      painter: MasterPainter(
+                        strokes: data.strokes,
+                        currentStroke: data.current,
+                      ),
+                      size: const Size(800, 500),
+                    );
+                  },
                 ),
-                size: const Size(700, 450),
-              ),
+
+                Selector<
+                  DrawingController,
+                  ({double width, BrushMode mode, bool showCursor})
+                >(
+                  selector: (_, ctrl) => (
+                    width: ctrl.currentBrush.width,
+                    mode: ctrl.currentBrush.mode,
+                    showCursor: ctrl.showCursor,
+                  ),
+                  builder: (context, brushData, _) {
+                    if (brushData.mode == BrushMode.eyedropper ||
+                        !brushData.showCursor) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return ValueListenableBuilder<Offset?>(
+                      valueListenable: _cursorPosition,
+                      builder: (context, position, _) {
+                        if (position == null) return const SizedBox.shrink();
+
+                        return CustomPaint(
+                          painter: BrushCursorPainter(
+                            position: position,
+                            radius: brushData.width / 2,
+                          ),
+                          size: const Size(800, 500),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
+  }
+}
+
+class BrushCursorPainter extends CustomPainter {
+  final Offset position;
+  final double radius;
+
+  BrushCursorPainter({required this.position, required this.radius});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final outlinePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    final borderPaint = Paint()
+      ..color = Colors.black54
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    canvas.drawCircle(position, radius + 1, outlinePaint);
+    canvas.drawCircle(position, radius, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant BrushCursorPainter oldDelegate) {
+    return oldDelegate.position != position || oldDelegate.radius != radius;
   }
 }
 

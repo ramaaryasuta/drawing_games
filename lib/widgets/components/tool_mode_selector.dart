@@ -42,6 +42,23 @@ class ToolModeSelector extends StatelessWidget {
                 ),
                 ToolContainer(
                   onTap: () {
+                    drawingCtrl.clearCanvas();
+                  },
+                  tooltip: 'Clear Canvas',
+                  icon: Icons.layers_clear_outlined,
+                  isSelected: false,
+                ),
+                ToolContainer(
+                  onTap: () {
+                    drawingCtrl.setBrush(mode: BrushMode.eyedropper);
+                  },
+                  tooltip: 'Pick Color',
+                  icon: Icons.colorize_rounded,
+                  isSelected:
+                      drawingCtrl.currentBrush.mode == BrushMode.eyedropper,
+                ),
+                ToolContainer(
+                  onTap: () {
                     drawingCtrl.undo();
                   },
                   tooltip: 'Undo',

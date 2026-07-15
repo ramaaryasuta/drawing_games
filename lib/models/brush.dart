@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum BrushMode { pen, eraser }
+enum BrushMode { pen, eraser, eyedropper }
 
 class Brush {
   final Color color;

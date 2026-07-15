@@ -49,6 +49,7 @@ class _BrushSizeSelectorState extends State<BrushSizeSelector> {
     return Consumer<DrawingController>(
       builder: (context, drawingCtrl, _) {
         return Column(
+          spacing: 8,
           crossAxisAlignment: .start,
           children: [
             Text(
@@ -99,6 +100,26 @@ class _BrushSizeSelectorState extends State<BrushSizeSelector> {
                       isDense: true,
                     ),
                     onChanged: _updateFromText,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 1),
+
+            Row(
+              children: [
+                Expanded(child: Text('Show Cursor')),
+                SizedBox(
+                  width: 40,
+                  height: 24,
+                  child: Transform.scale(
+                    scale: 0.7,
+                    child: Switch(
+                      value: drawingCtrl.showCursor,
+                      onChanged: (v) => drawingCtrl.setShowCursor(v),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
                 ),
               ],
